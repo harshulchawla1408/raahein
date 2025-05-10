@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAkXlDZ2bG100XddaqtxYUF7V_UpRW35OI",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "raahein-auth.firebaseapp.com",
   projectId: "raahein-auth",
   storageBucket: "raahein-auth.appspot.com",
