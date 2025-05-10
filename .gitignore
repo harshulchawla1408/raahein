@@ -1,0 +1,33 @@
+# Node modules
+**/node_modules/
+npm-debug.log*
+
+# Logs
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ENV & secrets
+.env
+.env.* 
+**/firebaseServiceAccount.json
+
+# Build Output
+**/.next/
+**/dist/
+**/build/
+
+# IDEs
+.vscode/
+.idea/
+
+# Others
+.next/
+.cache/
+*.tgz
