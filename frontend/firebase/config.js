@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY  ,
   authDomain: "raahein-auth.firebaseapp.com",
   projectId: "raahein-auth",
   storageBucket: "raahein-auth.appspot.com",
@@ -17,7 +17,6 @@ const auth = getAuth(app);
 
 let analytics = null;
 
-// Check if we're on the client and analytics is supported
 if (typeof window !== "undefined") {
   isSupported().then((yes) => {
     if (yes) {
