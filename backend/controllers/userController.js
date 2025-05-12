@@ -1,7 +1,9 @@
 const User = require("../models/User");
 
 const createOrUpdateUser = async (req, res) => {
-  const { uid, email, name } = req.user;
+  const { uid, email } = req.user;
+  // Use name from token if present, otherwise from body
+  const name = req.user.name || req.body.name;
 
   try {
     const user = await User.findOneAndUpdate(
