@@ -11,6 +11,7 @@ const createOrUpdateUser = async (req, res) => {
       { email, name },
       { new: true, upsert: true }
     );
+    console.log('Data being sent from backend:', user);
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ error: "DB Error", err });

@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-24px); }
+}
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 1s ease forwards; }
+.fade-in-delay-200 { animation-delay: 0.2s; }
+
+@keyframes pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  80% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-pop { animation: pop 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-32px); }
+}
+.animate-bounce-slow { animation: bounce-slow 6s infinite; }
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.animate-spin-slow { animation: spin-slow 18s linear infinite; }
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
