@@ -3,7 +3,7 @@
 import { login, loginWithGoogle } from '../../firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import axios from '../../lib/axios';
+import userAxios from '../../lib/userAxios';
 import { auth } from '../../firebase/config';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -19,11 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      const user = auth.currentUser;
-      const token = await user.getIdToken();
-      await axios.post('/user', {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await userAxios.get('/me');
       router.push('/dashboard');
     } catch (err) {
       alert('Login failed');
@@ -36,11 +32,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
-      const user = auth.currentUser;
-      const token = await user.getIdToken();
-      await axios.post('/user', {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await userAxios.get('/me');
       router.push('/dashboard');
     } catch (err) {
       alert('Google sign-in failed');

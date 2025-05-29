@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { register, loginWithGoogle } from '../../firebase/auth';
 import { auth } from '../../firebase/config';
-import axios from '../../lib/axios';
+import userAxios from '../../lib/userAxios';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -24,11 +24,9 @@ export default function RegisterPage() {
       await register(form.email, form.password);
       const user = auth.currentUser;
       const token = await user.getIdToken();
-      await axios.post('/user', {
+      await userAxios.post('/', {
         name: form.name,
         email: form.email,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
       router.push('/dashboard');
     } catch (err) {
@@ -44,12 +42,9 @@ export default function RegisterPage() {
     try {
       await loginWithGoogle();
       const user = auth.currentUser;
-      const token = await user.getIdToken();
-      await axios.post('/user', {
+      await userAxios.post('/', {
         name: user.displayName,
         email: user.email,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
       router.push('/dashboard');
     } catch (err) {

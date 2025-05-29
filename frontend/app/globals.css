@@ -1,5 +1,7 @@
 @import "tailwindcss";
+@import '../styles/PopularDestinations.css';
 
+/* Animations */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-24px); }
@@ -32,7 +34,18 @@
 }
 .animate-spin-slow { animation: spin-slow 18s linear infinite; }
 
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+.animate-blob { animation: blob 7s infinite; }
 
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
+
+/* Root variables for light mode */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -44,19 +57,7 @@
   --text-light: #6b7280;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-light: var(--primary-light);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-text: var(--text);
-  --color-text-light: var(--text-light);
-  --font-sans: var(--font-inter);
-  --font-heading: var(--font-poppins);
-}
-
+/* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -66,6 +67,7 @@
   }
 }
 
+/* Base styles */
 body {
   background: var(--background);
   color: var(--text);
@@ -84,18 +86,20 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(0, 0, 0, 0.4);
 }
 
-.btn-primary {
-  @apply bg-transparent text-white border border-white px-6 py-3 rounded-lg font-bold transition-all hover:bg-primary-light;
-}
+/* Button Styles (using Tailwind @apply) */
+@layer components {
+  .btn-primary {
+    @apply bg-transparent text-white border border-white px-6 py-3 rounded-lg font-bold transition-all hover:bg-primary-light;
+  }
 
-.btn-secondary {
-  background-color: #008080;
-  @apply  text-white px-6 py-3 rounded-lg font-medium transition-all hover:bg-secondary/90;
- 
-}
+  .btn-secondary {
+    background-color: #008080;
+    @apply text-white px-6 py-3 rounded-lg font-medium transition-all hover:bg-secondary/90;
+  }
 
-.nav-link {
-  @apply text-white hover:text-primary transition-colors ;
+  .nav-link {
+    @apply text-white hover:text-primary transition-colors;
+  }
 }
 
 /* Mobile Menu Animation */
@@ -103,18 +107,15 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0;
   transform: translateY(-20px);
 }
-
 .mobile-menu-enter-active {
   opacity: 1;
   transform: translateY(0);
   transition: opacity 300ms, transform 300ms;
 }
-
 .mobile-menu-exit {
   opacity: 1;
   transform: translateY(0);
 }
-
 .mobile-menu-exit-active {
   opacity: 0;
   transform: translateY(-20px);
@@ -123,21 +124,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Responsive Typography */
 @media (max-width: 640px) {
-  h1 {
-    font-size: 2.5rem;
-  }
-  
-  h2 {
-    font-size: 2rem;
-  }
-  
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
   .btn-primary, .btn-secondary {
     padding: 0.75rem 1.5rem;
     font-size: 0.875rem;
   }
 }
 
-/* Form Input Focus Styles */
+/* Form Input Focus */
 input:focus, textarea:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--primary);
@@ -149,3 +144,162 @@ input:focus, textarea:focus {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
+
+/* Aspect Ratio Utility */
+.aspect-w-16 {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 ratio */
+}
+.aspect-w-16 > * {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+}
+
+/* Card Hover */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient Overlay */
+.gradient-overlay {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+/* Testimonial Card */
+.testimonial-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Newsletter Input */
+.newsletter-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+.newsletter-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Social Icons */
+.social-icon {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.social-icon:hover {
+  transform: translateY(-3px);
+  color: var(--primary);
+}
+
+/* Video Play Button */
+.play-button {
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.play-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Section Transitions */
+.section-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.section-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Responsive Image Grid */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
+/* Loading Skeleton */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Mobile Menu tweaks */
+@media (max-width: 768px) {
+  .mobile-menu {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+  }
+  .mobile-menu .nav-link {
+    color: var(--text);
+  }
+  .mobile-menu .btn-primary,
+  .mobile-menu .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print { display: none; }
+  body { background: white; color: black; }
+  a { text-decoration: none; color: black; }
+}
+
+/* Custom range input */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  outline: none;
+  transition: background 0.3s ease;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px var(--primary);
+}
+
+/* Tailwind Core Directives - KEEP AT BOTTOM */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

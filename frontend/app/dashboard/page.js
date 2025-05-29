@@ -34,7 +34,7 @@ export default function DashboardPage() {
       if (currentUser) {
         const token = await currentUser.getIdToken();
         try {
-          const response = await axios.get(`/api/user/${currentUser.uid}`, {
+          const response = await axios.get(`/api/users/${currentUser.uid}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUser(response.data);
