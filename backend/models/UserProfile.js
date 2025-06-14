@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
 const userProfileSchema = new mongoose.Schema(
   {
     uid: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // ✅ this creates the unique index already
       ref: 'User',
     },
     name: {
@@ -23,28 +23,26 @@ const userProfileSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ["male", "female", "other", "prefer-not-to-say"],
+      enum: ['male', 'female', 'other', 'prefer-not-to-say'],
     },
     maritalStatus: {
       type: String,
-      enum: ["single", "married", "divorced", "widowed", "prefer-not-to-say"],
+      enum: ['single', 'married', 'divorced', 'widowed', 'prefer-not-to-say'],
     },
-    travelInterests: [{
-      type: String,
-      enum: ["adventure", "beach", "cultural", "culinary", "honeymoon", "road-trips", "wildlife", "wellness", "sightseeing", "shopping", "other"],
-    }],
-    phoneNumber: {
-      type: String,
-    },
-    country: {
-      type: String,
-    },
-    state: {
-      type: String,
-    },
-    city: {
-      type: String,
-    },
+    travelInterests: [
+      {
+        type: String,
+        enum: [
+          'adventure', 'beach', 'cultural', 'culinary',
+          'honeymoon', 'road-trips', 'wildlife', 'wellness',
+          'sightseeing', 'shopping', 'other',
+        ],
+      },
+    ],
+    phoneNumber: String,
+    country: String,
+    state: String,
+    city: String,
     travelGoal: {
       type: String,
       maxlength: 500,
@@ -54,8 +52,5 @@ const userProfileSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-// Prevent duplicate profiles for the same user
-userProfileSchema.index({ uid: 1 }, { unique: true });
-
-module.exports = mongoose.model("UserProfile", userProfileSchema);
+const UserProfile = mongoose.model('UserProfile', userProfileSchema);
+export default UserProfile;

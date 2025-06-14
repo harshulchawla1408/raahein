@@ -1,8 +1,12 @@
-const User = require("../models/User");
+import User from '../models/User.js';
 
-const createOrUpdateUser = async (req, res) => {
+/**
+ * @route   POST /api/users
+ * @desc    Create or update user in the database
+ * @access  Private
+ */
+export const createOrUpdateUser = async (req, res) => {
   const { uid, email } = req.user;
-  // Use name from token if present, otherwise from body
   const name = req.user.name || req.body.name;
 
   try {
@@ -13,8 +17,6 @@ const createOrUpdateUser = async (req, res) => {
     );
     res.status(200).json(user);
   } catch (err) {
-    res.status(500).json({ error: "DB Error", err });
+    res.status(500).json({ error: 'DB Error', err });
   }
 };
-
-module.exports = { createOrUpdateUser };

@@ -1,7 +1,13 @@
-const winston = require('winston');
+import winston from 'winston';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
 const { format, transports } = winston;
-const path = require('path');
-const fs = require('fs');
+
+// To replace __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Create logs directory if it doesn't exist
 const logDir = path.join(__dirname, '../logs');
@@ -23,37 +29,34 @@ const logger = winston.createLogger({
   format: logFormat,
   defaultMeta: { service: 'raahein-ai-service' },
   transports: [
-    // Write all logs with level `error` and below to `error.log`
-    new transports.File({ 
-      filename: path.join(logDir, 'error.log'), 
+    new transports.File({
+      filename: path.join(logDir, 'error.log'),
       level: 'error',
       maxsize: 5242880, // 5MB
-      maxFiles: 5
+      maxFiles: 5,
     }),
-    // Write all logs with level `info` and below to `combined.log`
-    new transports.File({ 
+    new transports.File({
       filename: path.join(logDir, 'combined.log'),
       maxsize: 5242880, // 5MB
-      maxFiles: 5
-    })
-  ]
+      maxFiles: 5,
+    }),
+  ],
 });
 
-// If we're not in production, log to the `console` with a simple format
+// If we're not in production, log to the console
 if (process.env.NODE_ENV !== 'production') {
-  logger.add(new transports.Console({
-    format: format.combine(
-      format.colorize(),
-      format.simple()
-    )
-  }));
+  logger.add(
+    new transports.Console({
+      format: format.combine(format.colorize(), format.simple()),
+    })
+  );
 }
 
-// Create a stream for morgan (HTTP request logging)
+// Create a stream for morgan
 logger.stream = {
   write: (message) => {
     logger.info(message.trim());
-  }
+  },
 };
 
-module.exports = logger;
+export default logger;

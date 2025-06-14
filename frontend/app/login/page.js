@@ -1,10 +1,10 @@
 'use client';
 
 import { login, loginWithGoogle } from '../../firebase/auth';
+import { auth } from '../../firebase/config';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import userAxios from '../../lib/userAxios';
-import { auth } from '../../firebase/config';
+import axios from '@/lib/axios';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,14 +15,24 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const fetchUserProfile = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+    const token = await currentUser.getIdToken();
+    await axios.get('/api/v1/user-profile', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  };
+
   const handleLogin = async () => {
     setLoading(true);
     try {
       await login(email, password);
-      await userAxios.get('/me');
+      await fetchUserProfile();
       router.push('/dashboard');
     } catch (err) {
-      alert('Login failed');
+      console.error('Login error:', err);
+      alert('Login failed. Please check your credentials or try again.');
     } finally {
       setLoading(false);
     }
@@ -32,10 +42,11 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
-      await userAxios.get('/me');
+      await fetchUserProfile();
       router.push('/dashboard');
     } catch (err) {
-      alert('Google sign-in failed');
+      console.error('Google login error:', err);
+      alert('Google sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -43,7 +54,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden">
-      {/* Blurred background image */}
+      {/* Background Image */}
       <Image
         src="/images/login.jpg"
         alt="Background"
@@ -52,12 +63,12 @@ export default function LoginPage() {
         priority
       />
 
-      {/* Semi-transparent white overlay */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-white/50 backdrop-blur-sm"></div>
 
-      {/* Foreground content */}
+      {/* Login Container */}
       <div className="relative z-10 w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row">
-        {/* Left side - Login form */}
+        {/* Login Form */}
         <div className="w-full lg:w-1/2 p-8">
           <div className="flex items-center gap-2 mb-12">
             <h1 className="text-2xl font-bold text-gray-800">RAAHEIN</h1>
@@ -82,16 +93,14 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="Email"
-                className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
-                disabled={loading}
-              />
-            </div>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Email"
+              className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+              disabled={loading}
+            />
 
             <div className="relative">
               <input
@@ -132,7 +141,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Right side - Hero section */}
+        {/* Hero Side Image */}
         <div className="hidden lg:block lg:w-1/2 relative">
           <div className="absolute inset-0 border-10 border-white rounded-r-2xl overflow-hidden">
             <Image

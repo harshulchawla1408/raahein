@@ -48,7 +48,7 @@ export default function ExploreDestinations() {
   useEffect(() => {
     async function fetchDestinations() {
       try {
-        const res = await axios.get("/destinations");
+        const res = await axios.get("/api/v1/destinations/filter");
         const data = res.data.data || res.data;
         setDestinations(data);
         setFiltered(data);
@@ -83,7 +83,7 @@ export default function ExploreDestinations() {
           if (value) params.append(key, value);
         });
         
-        const res = await axios.get(`/destinations/filter?${params.toString()}`);
+        const res = await axios.get(`api/v1/destinations/filter?${params.toString()}`);
         setFiltered(res.data);
       } catch (e) {
         console.error("Filtering error:", e);

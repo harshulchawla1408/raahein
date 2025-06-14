@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
 const AiSuggestionSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
+  userId: { type: String, required: true, index: true },
   age: Number,
   groupType: String,
   interests: [String],
@@ -12,8 +12,19 @@ const AiSuggestionSchema = new mongoose.Schema({
   duration: String,
   season: String,
   locationPreference: String,
-  aiResponse: [{}],
-  createdAt: { type: Date, default: Date.now },
+  aiResponse: [
+    {
+      name: { type: String, required: true },
+      description: { type: String, required: true },
+      estimatedCost: { type: Number, required: true },
+      duration: { type: String, required: true },
+      bestTimeToVisit: { type: String, required: true },
+      activities: [{ type: String }],
+    }
+  ]
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model("AiSuggestion", AiSuggestionSchema);
+const AiSuggestion = mongoose.model('AiSuggestion', AiSuggestionSchema);
+export default AiSuggestion;

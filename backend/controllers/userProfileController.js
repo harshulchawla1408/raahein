@@ -1,21 +1,22 @@
-const User = require('../models/User');
-const UserProfile = require('../models/UserProfile');
+import User from '../models/User.js';
+import UserProfile from '../models/UserProfile.js';
 
-// Get or create user profile
-const getUserProfile = async (req, res) => {
+/**
+ * @route   GET /api/user/profile
+ * @desc    Get or create a user's profile
+ * @access  Private
+ */
+export const getUserProfile = async (req, res) => {
   try {
     const uid = req.user.uid;
-    
-    // Find the user to get name and email
+
     const user = await User.findOne({ uid });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Find or create profile
     let profile = await UserProfile.findOne({ uid });
-    
-    // If profile doesn't exist, create a new one with basic info
+
     if (!profile) {
       profile = new UserProfile({
         uid,
@@ -32,34 +33,35 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// Create or update user profile
-const updateUserProfile = async (req, res) => {
+/**
+ * @route   PUT /api/user/profile
+ * @desc    Update or create user profile with frontend data
+ * @access  Private
+ */
+export const updateUserProfile = async (req, res) => {
   try {
     const uid = req.user.uid;
     const updateData = req.body;
 
-    // Remove any attempt to update uid, name, or email from frontend
+    // Strip sensitive keys to prevent overwrite from frontend
     const { uid: _uid, name: _name, email: _email, ...safeUpdateData } = updateData;
 
-    // Get user data to ensure they exist and get their name/email
     const user = await User.findOne({ uid });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update or create the profile
     const profile = await UserProfile.findOneAndUpdate(
       { uid },
       {
         ...safeUpdateData,
-        // Always set name and email from the User model to keep in sync
         name: user.name,
         email: user.email,
       },
-      { 
-        new: true, 
+      {
+        new: true,
         upsert: true,
-        setDefaultsOnInsert: true 
+        setDefaultsOnInsert: true
       }
     );
 
@@ -68,9 +70,4 @@ const updateUserProfile = async (req, res) => {
     console.error('Error updating user profile:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
-};
-
-module.exports = {
-  getUserProfile,
-  updateUserProfile
 };

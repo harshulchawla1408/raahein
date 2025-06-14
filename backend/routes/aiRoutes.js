@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+import { recommendDestinations } from '../controllers/aiController.js';
+import verifyFirebaseToken from '../middlewares/verifyFirebaseToken.js';
+import { body, validationResult } from 'express-validator';
+import logger from '../config/logger.js';
+
 const router = express.Router();
-const { recommendDestinations } = require('../controllers/aiController');
-const verifyFirebaseToken = require('../middlewares/verifyFirebaseToken');
-const { body, validationResult } = require('express-validator');
-const logger = require('../config/logger');
 
 /**
  * @swagger
@@ -12,49 +13,48 @@ const logger = require('../config/logger');
  *   description: AI-powered travel destination suggestions
  */
 
-// Input validation middleware
 const validateInput = [
   body('age')
     .isInt({ min: 1, max: 120 })
     .withMessage('Age must be between 1 and 120'),
-  
+
   body('groupType')
     .isIn(['solo', 'couple', 'family', 'friends'])
     .withMessage('Invalid group type. Must be one of: solo, couple, family, friends'),
-  
+
   body('interests')
     .isArray({ min: 1, max: 10 })
     .withMessage('At least one interest is required (max 10)'),
-  
+
   body('budget')
     .isObject()
     .withMessage('Budget must be an object with min and max values'),
-  
+
   body('budget.min')
     .isInt({ min: 0 })
     .withMessage('Minimum budget must be a positive number'),
-  
+
   body('budget.max')
     .isInt({ min: 1 })
     .withMessage('Maximum budget must be a positive number'),
-  
+
   body('duration')
     .isString()
     .trim()
     .notEmpty()
     .withMessage('Duration is required'),
-  
+
   body('season')
     .isString()
     .trim()
     .notEmpty()
     .withMessage('Season is required'),
-  
+
   body('locationPreference')
     .isIn(['domestic', 'international', 'any'])
     .withMessage('Invalid location preference. Must be one of: domestic, international, any'),
-  
-  // Custom validation for budget range
+
+  // Custom validation
   (req, res, next) => {
     if (req.body.budget && req.body.budget.min > req.body.budget.max) {
       return res.status(400).json({
@@ -64,8 +64,8 @@ const validateInput = [
     }
     next();
   },
-  
-  // Handle validation errors
+
+  // Final validation result handling
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -163,6 +163,7 @@ const validateInput = [
  *       500:
  *         description: Server error
  */
+
 router.post(
   '/suggest-destinations',
   verifyFirebaseToken,
@@ -170,4 +171,4 @@ router.post(
   recommendDestinations
 );
 
-module.exports = router;
+export default router;

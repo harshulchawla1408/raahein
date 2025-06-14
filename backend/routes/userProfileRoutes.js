@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import verifyFirebaseToken from '../middlewares/verifyFirebaseToken.js';
+import { getUserProfile, updateUserProfile } from '../controllers/userProfileController.js';
+
 const router = express.Router();
-const verifyFirebaseToken = require('../middlewares/verifyFirebaseToken');
-const { getUserProfile, updateUserProfile } = require('../controllers/userProfileController');
 
 // Apply Firebase token verification to all routes
 router.use(verifyFirebaseToken);
@@ -12,4 +13,4 @@ router.get('/', getUserProfile);
 // PUT /api/user-profile - Create or update user profile
 router.put('/', updateUserProfile);
 
-module.exports = router;
+export default router;

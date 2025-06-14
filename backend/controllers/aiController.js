@@ -1,6 +1,6 @@
-const { getGeminiResponse } = require("../utilis/aiHelper");
-const AiSuggestion = require("../models/AiSuggestion");
-const logger = require('../config/logger');
+import { getGeminiResponse } from '../utilis/aiHelper.js';
+import AiSuggestion from '../models/AiSuggestion.js';
+import logger from '../config/logger.js';
 
 /**
  * @route   POST /api/ai/suggest-destinations
@@ -11,8 +11,8 @@ const logger = require('../config/logger');
  * @param   {string} req.user.uid - Firebase UID of the authenticated user
  * @returns {Array} Array of suggested destinations
  */
-exports.recommendDestinations = async (req, res) => {
-  const userId = req.user?.uid || "guest";
+export const recommendDestinations = async (req, res) => {
+  const userId = req.user?.uid || 'guest';
   const userInput = req.body;
   const requestId = Date.now().toString(36) + Math.random().toString(36).substr(2);
 
@@ -28,7 +28,6 @@ exports.recommendDestinations = async (req, res) => {
       throw new Error('Invalid response format from AI service');
     }
 
-    // Log the successful response
     logger.info(`[${requestId}] Successfully generated ${aiResult.length} destination suggestions`);
 
     // Save to database (non-blocking)
@@ -41,11 +40,11 @@ exports.recommendDestinations = async (req, res) => {
       });
       logger.debug(`[${requestId}] Saved suggestion to database`);
     } catch (dbError) {
-      // Log database errors but don't fail the request
-      logger.error(`[${requestId}] Error saving to database: ${dbError.message}`, { error: dbError });
+      logger.error(`[${requestId}] Error saving to database: ${dbError.message}`, {
+        error: dbError
+      });
     }
 
-    // Return the AI response
     res.status(200).json({
       success: true,
       data: aiResult,

@@ -1,9 +1,22 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaCompass, FaGlobe, FaPaperPlane, FaChevronDown, FaChevronUp, FaHeart, FaRegHeart, FaSun, FaUmbrellaBeach, FaWater, FaMountain, FaSpinner } from 'react-icons/fa';
+import { useState } from "react";
+import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FaCompass,
+  FaGlobe,
+  FaPaperPlane,
+  FaChevronDown,
+  FaChevronUp,
+  FaHeart,
+  FaRegHeart,
+  FaSun,
+  FaUmbrellaBeach,
+  FaWater,
+  FaMountain,
+  FaSpinner,
+} from "react-icons/fa";
 
 // Components
 const StepIndicator = ({ currentStep, totalSteps }) => {
@@ -11,19 +24,23 @@ const StepIndicator = ({ currentStep, totalSteps }) => {
     <div className="flex justify-between items-center mb-8">
       {[...Array(totalSteps)].map((_, index) => (
         <div key={index} className="flex items-center">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            index + 1 <= currentStep 
-              ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white' 
-              : 'bg-sky-100 text-sky-400'
-          }`}>
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              index + 1 <= currentStep
+                ? "bg-gradient-to-r from-sky-400 to-blue-500 text-white"
+                : "bg-sky-100 text-sky-400"
+            }`}
+          >
             {index + 1}
           </div>
           {index < totalSteps - 1 && (
-            <div className={`w-24 h-1 ${
-              index + 1 < currentStep 
-                ? 'bg-gradient-to-r from-sky-400 to-blue-500' 
-                : 'bg-sky-100'
-            }`} />
+            <div
+              className={`w-24 h-1 ${
+                index + 1 < currentStep
+                  ? "bg-gradient-to-r from-sky-400 to-blue-500"
+                  : "bg-sky-100"
+              }`}
+            />
           )}
         </div>
       ))}
@@ -33,10 +50,18 @@ const StepIndicator = ({ currentStep, totalSteps }) => {
 
 const TravelGroupToggle = ({ value, onChange }) => {
   const options = [
-    { value: 'solo', label: 'Solo Traveler', icon: <FaCompass className="w-6 h-6" /> },
-    { value: 'couple', label: 'Couple', icon: <FaHeart className="w-6 h-6" /> },
-    { value: 'family', label: 'Family', icon: <FaGlobe className="w-6 h-6" /> },
-    { value: 'friends', label: 'Friends', icon: <FaPaperPlane className="w-6 h-6" /> }
+    {
+      value: "solo",
+      label: "Solo Traveler",
+      icon: <FaCompass className="w-6 h-6" />,
+    },
+    { value: "couple", label: "Couple", icon: <FaHeart className="w-6 h-6" /> },
+    { value: "family", label: "Family", icon: <FaGlobe className="w-6 h-6" /> },
+    {
+      value: "friends",
+      label: "Friends",
+      icon: <FaPaperPlane className="w-6 h-6" />,
+    },
   ];
 
   return (
@@ -47,15 +72,23 @@ const TravelGroupToggle = ({ value, onChange }) => {
           onClick={() => onChange(option.value)}
           className={`p-4 rounded-xl border-2 transition-all duration-300 ${
             value === option.value
-              ? 'border-sky-400 bg-gradient-to-r from-sky-50 to-blue-50 shadow-lg'
-              : 'border-sky-100 hover:border-sky-200'
+              ? "border-sky-400 bg-gradient-to-r from-sky-50 to-blue-50 shadow-lg"
+              : "border-sky-100 hover:border-sky-200"
           }`}
         >
           <div className="flex flex-col items-center gap-2">
-            <span className={`${value === option.value ? 'text-sky-500' : 'text-sky-400'}`}>
+            <span
+              className={`${
+                value === option.value ? "text-sky-500" : "text-sky-400"
+              }`}
+            >
               {option.icon}
             </span>
-            <span className={`font-medium ${value === option.value ? 'text-sky-600' : 'text-sky-500'}`}>
+            <span
+              className={`font-medium ${
+                value === option.value ? "text-sky-600" : "text-sky-500"
+              }`}
+            >
               {option.label}
             </span>
           </div>
@@ -67,10 +100,18 @@ const TravelGroupToggle = ({ value, onChange }) => {
 
 const InterestToggle = ({ value, onChange }) => {
   const options = [
-    { value: 'beach', label: 'Beach', icon: <FaUmbrellaBeach className="w-6 h-6" /> },
-    { value: 'mountain', label: 'Mountain', icon: <FaMountain className="w-6 h-6" /> },
-    { value: 'city', label: 'City', icon: <FaGlobe className="w-6 h-6" /> },
-    { value: 'nature', label: 'Nature', icon: <FaWater className="w-6 h-6" /> }
+    {
+      value: "beach",
+      label: "Beach",
+      icon: <FaUmbrellaBeach className="w-6 h-6" />,
+    },
+    {
+      value: "mountain",
+      label: "Mountain",
+      icon: <FaMountain className="w-6 h-6" />,
+    },
+    { value: "city", label: "City", icon: <FaGlobe className="w-6 h-6" /> },
+    { value: "nature", label: "Nature", icon: <FaWater className="w-6 h-6" /> },
   ];
 
   return (
@@ -80,21 +121,29 @@ const InterestToggle = ({ value, onChange }) => {
           key={option.value}
           onClick={() => {
             const newValue = value.includes(option.value)
-              ? value.filter(v => v !== option.value)
+              ? value.filter((v) => v !== option.value)
               : [...value, option.value];
             onChange(newValue);
           }}
           className={`p-4 rounded-xl border-2 transition-all duration-300 ${
             value.includes(option.value)
-              ? 'border-sky-400 bg-gradient-to-r from-sky-50 to-blue-50 shadow-lg'
-              : 'border-sky-100 hover:border-sky-200'
+              ? "border-sky-400 bg-gradient-to-r from-sky-50 to-blue-50 shadow-lg"
+              : "border-sky-100 hover:border-sky-200"
           }`}
         >
           <div className="flex flex-col items-center gap-2">
-            <span className={`${value.includes(option.value) ? 'text-sky-500' : 'text-sky-400'}`}>
+            <span
+              className={`${
+                value.includes(option.value) ? "text-sky-500" : "text-sky-400"
+              }`}
+            >
               {option.icon}
             </span>
-            <span className={`font-medium ${value.includes(option.value) ? 'text-sky-600' : 'text-sky-500'}`}>
+            <span
+              className={`font-medium ${
+                value.includes(option.value) ? "text-sky-600" : "text-sky-500"
+              }`}
+            >
               {option.label}
             </span>
           </div>
@@ -113,7 +162,7 @@ const BudgetSlider = ({ min, max, value, onChange }) => {
           ${value.min.toLocaleString()} - ${value.max.toLocaleString()}
         </span>
       </div>
-      
+
       <div className="space-y-2">
         <div className="relative">
           <input
@@ -126,31 +175,33 @@ const BudgetSlider = ({ min, max, value, onChange }) => {
               const newMax = parseInt(e.target.value);
               onChange({
                 min: Math.min(value.min, newMax - 500),
-                max: newMax
+                max: newMax,
               });
             }}
             className="w-full h-2 bg-sky-200 rounded-lg appearance-none cursor-pointer"
           />
-          <div 
+          <div
             className="absolute top-0 h-2 bg-sky-400 rounded-l-lg"
             style={{
-              left: '0%',
+              left: "0%",
               width: `${((value.min - min) / (max - min)) * 100}%`,
-              backgroundColor: '#7dd3fc'
+              backgroundColor: "#7dd3fc",
             }}
           />
-          <div 
+          <div
             className="absolute top-0 h-2 bg-sky-600 rounded-r-lg"
             style={{
               left: `${((value.min - min) / (max - min)) * 100}%`,
-              width: `${((value.max - value.min) / (max - min)) * 100}%`
+              width: `${((value.max - value.min) / (max - min)) * 100}%`,
             }}
           />
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-sky-700 mb-1">Min</label>
+            <label className="block text-sm font-medium text-sky-700 mb-1">
+              Min
+            </label>
             <div className="relative">
               <span className="absolute left-3 top-2.5 text-sky-500">$</span>
               <input
@@ -162,7 +213,7 @@ const BudgetSlider = ({ min, max, value, onChange }) => {
                   const newMin = parseInt(e.target.value) || 0;
                   onChange({
                     min: Math.min(newMin, value.max - 500),
-                    max: value.max
+                    max: value.max,
                   });
                 }}
                 className="w-full pl-8 pr-3 py-2 border border-sky-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
@@ -170,7 +221,9 @@ const BudgetSlider = ({ min, max, value, onChange }) => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-sky-700 mb-1">Max</label>
+            <label className="block text-sm font-medium text-sky-700 mb-1">
+              Max
+            </label>
             <div className="relative">
               <span className="absolute left-3 top-2.5 text-sky-500">$</span>
               <input
@@ -182,7 +235,7 @@ const BudgetSlider = ({ min, max, value, onChange }) => {
                   const newMax = parseInt(e.target.value) || 0;
                   onChange({
                     min: value.min,
-                    max: Math.max(newMax, value.min + 500)
+                    max: Math.max(newMax, value.min + 500),
                   });
                 }}
                 className="w-full pl-8 pr-3 py-2 border border-sky-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
@@ -206,16 +259,24 @@ const DurationSelector = ({ value, onChange }) => {
           onClick={() => onChange(days)}
           className={`p-4 rounded-xl border-2 transition-all duration-300 ${
             value === days
-              ? 'border-sky-400 bg-gradient-to-r from-sky-50 to-blue-50 shadow-lg'
-              : 'border-sky-100 hover:border-sky-200'
+              ? "border-sky-400 bg-gradient-to-r from-sky-50 to-blue-50 shadow-lg"
+              : "border-sky-100 hover:border-sky-200"
           }`}
         >
           <div className="flex flex-col items-center gap-1">
-            <span className={`text-2xl font-bold ${value === days ? 'text-sky-600' : 'text-sky-400'}`}>
+            <span
+              className={`text-2xl font-bold ${
+                value === days ? "text-sky-600" : "text-sky-400"
+              }`}
+            >
               {days}
             </span>
-            <span className={`text-sm ${value === days ? 'text-sky-600' : 'text-sky-500'}`}>
-              {days === 1 ? 'Day' : 'Days'}
+            <span
+              className={`text-sm ${
+                value === days ? "text-sky-600" : "text-sky-500"
+              }`}
+            >
+              {days === 1 ? "Day" : "Days"}
             </span>
           </div>
         </button>
@@ -228,19 +289,23 @@ const LocationPreference = ({ value, onChange }) => {
   return (
     <div className="grid grid-cols-2 gap-4">
       {[
-        { value: 'domestic', label: 'Domestic' },
-        { value: 'international', label: 'International' }
+        { value: "domestic", label: "Domestic" },
+        { value: "international", label: "International" },
       ].map((option) => (
         <button
           key={option.value}
           onClick={() => onChange(option.value)}
           className={`p-6 rounded-xl border-2 transition-all duration-300 ${
             value === option.value
-              ? 'border-sky-400 bg-gradient-to-r from-sky-50 to-blue-50 shadow-lg'
-              : 'border-sky-100 hover:border-sky-200'
+              ? "border-sky-400 bg-gradient-to-r from-sky-50 to-blue-50 shadow-lg"
+              : "border-sky-100 hover:border-sky-200"
           }`}
         >
-          <span className={`text-lg font-medium ${value === option.value ? 'text-sky-600' : 'text-sky-500'}`}>
+          <span
+            className={`text-lg font-medium ${
+              value === option.value ? "text-sky-600" : "text-sky-500"
+            }`}
+          >
             {option.label}
           </span>
         </button>
@@ -276,7 +341,9 @@ const SuggestionCard = ({ suggestion }) => {
         </button>
       </div>
       <div className="p-6">
-        <h3 className="text-xl font-bold text-sky-900 mb-2">{suggestion.destination}</h3>
+        <h3 className="text-xl font-bold text-sky-900 mb-2">
+          {suggestion.destination}
+        </h3>
         <p className="text-sky-600 mb-4">{suggestion.reason}</p>
         <div className="flex justify-between items-center">
           <span className="text-sky-600 font-semibold">{suggestion.cost}</span>
@@ -293,12 +360,12 @@ export default function PlanWithAI() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     age: 25,
-    groupType: '',
+    groupType: "",
     interests: [],
     budget: { min: 1000, max: 5000 },
     duration: 7,
-    season: 'summer',
-    locationPreference: 'domestic'
+    season: "summer",
+    locationPreference: "domestic",
   });
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -307,38 +374,41 @@ export default function PlanWithAI() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form
     if (formData.interests.length === 0) {
-      setError('Please select at least one interest');
+      setError("Please select at least one interest");
       return;
     }
-    
+
     if (!formData.groupType) {
-      setError('Please select a travel group type');
+      setError("Please select a travel group type");
       return;
     }
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
-      const response = await axios.post('/api/ai/suggest-destinations', {
+      const response = await axios.post("/api/v1/ai/suggest-destinations", {
         age: formData.age,
         groupType: formData.groupType,
         interests: formData.interests,
         budget: formData.budget,
-        duration: formData.duration,
+        duration: `${formData.duration} days`, 
         season: formData.season,
-        locationPreference: formData.locationPreference
+        locationPreference: formData.locationPreference,
       });
-      
+
       setSuggestions(response.data);
       setShowCelebration(true);
       setTimeout(() => setShowCelebration(false), 3000);
     } catch (err) {
-      console.error('Error fetching suggestions:', err);
-      setError(err.response?.data?.message || 'Failed to get travel suggestions. Please try again.');
+      console.error("Error fetching suggestions:", err);
+      setError(
+        err.response?.data?.message ||
+          "Failed to get travel suggestions. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -347,14 +417,14 @@ export default function PlanWithAI() {
   const nextStep = () => {
     // Validate current step before proceeding
     if (currentStep === 1 && !formData.groupType) {
-      setError('Please select a travel group');
+      setError("Please select a travel group");
       return;
     }
     if (currentStep === 2 && formData.interests.length === 0) {
-      setError('Please select at least one interest');
+      setError("Please select at least one interest");
       return;
     }
-    
+
     setError(null);
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
@@ -367,18 +437,18 @@ export default function PlanWithAI() {
       setCurrentStep(currentStep - 1);
     }
   };
-  
+
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
-  
+
   const handleBudgetChange = (min, max) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      budget: { min, max }
+      budget: { min, max },
     }));
   };
 
@@ -388,10 +458,24 @@ export default function PlanWithAI() {
       <div className="fixed inset-0 pointer-events-none">
         {/* Floating waves */}
         <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
             <defs>
-              <pattern id="waves" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M0 10 Q 5 5, 10 10 T 20 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+              <pattern
+                id="waves"
+                width="20"
+                height="20"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M0 10 Q 5 5, 10 10 T 20 10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.5"
+                />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#waves)" />
@@ -418,11 +502,13 @@ export default function PlanWithAI() {
               delay: i * 0.5,
             }}
           >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              i % 2 === 0 ? 'bg-teal-200/20' : 'bg-cyan-200/20'
-            }`}>
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                i % 2 === 0 ? "bg-teal-200/20" : "bg-cyan-200/20"
+              }`}
+            >
               <span className="text-2xl">
-                {['🌊', '🏖', '🌴', '🌅', '🐚', '🌺', '🦀', '🌞'][i]}
+                {["🌊", "🏖", "🌴", "🌅", "🐚", "🌺", "🦀", "🌞"][i]}
               </span>
             </div>
           </motion.div>
@@ -460,7 +546,8 @@ export default function PlanWithAI() {
               transition={{ delay: 0.2 }}
               className="text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed"
             >
-              Let our AI craft your perfect beach vacation, tailored to your style and preferences
+              Let our AI craft your perfect beach vacation, tailored to your
+              style and preferences
             </motion.p>
           </motion.div>
         </div>
@@ -478,7 +565,7 @@ export default function PlanWithAI() {
         <div className="absolute inset-0 bg-gradient-to-br from-teal-100/50 via-cyan-100/50 to-sky-100/50 rounded-3xl blur-3xl -z-10"></div>
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
           <StepIndicator currentStep={currentStep} totalSteps={5} />
-          
+
           <form onSubmit={handleSubmit}>
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
@@ -494,22 +581,33 @@ export default function PlanWithAI() {
                   </h2>
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-sky-700 mb-2">Age</label>
+                      <label className="block text-sm font-medium text-sky-700 mb-2">
+                        Age
+                      </label>
                       <input
                         type="number"
                         min="1"
                         max="120"
                         value={formData.age}
-                        onChange={(e) => handleInputChange('age', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "age",
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-full p-3 border border-sky-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                         placeholder="Enter your age"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-sky-700 mb-2">Travel Group</label>
+                      <label className="block text-sm font-medium text-sky-700 mb-2">
+                        Travel Group
+                      </label>
                       <TravelGroupToggle
                         value={formData.groupType}
-                        onChange={(value) => handleInputChange('groupType', value)}
+                        onChange={(value) =>
+                          handleInputChange("groupType", value)
+                        }
                       />
                     </div>
                   </div>
@@ -529,7 +627,9 @@ export default function PlanWithAI() {
                   </h2>
                   <InterestToggle
                     value={formData.interests}
-                    onChange={(value) => setFormData({ ...formData, interests: value })}
+                    onChange={(value) =>
+                      setFormData({ ...formData, interests: value })
+                    }
                   />
                 </motion.div>
               )}
@@ -553,10 +653,14 @@ export default function PlanWithAI() {
                       onChange={handleBudgetChange}
                     />
                     <div>
-                      <label className="block text-sm font-medium text-sky-700 mb-2">Season</label>
+                      <label className="block text-sm font-medium text-sky-700 mb-2">
+                        Season
+                      </label>
                       <select
                         value={formData.season}
-                        onChange={(e) => handleInputChange('season', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("season", e.target.value)
+                        }
                         className="w-full p-3 border border-sky-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       >
                         <option value="summer">Summer</option>
@@ -582,7 +686,9 @@ export default function PlanWithAI() {
                   </h2>
                   <DurationSelector
                     value={formData.duration}
-                    onChange={(value) => setFormData({ ...formData, duration: value })}
+                    onChange={(value) =>
+                      setFormData({ ...formData, duration: value })
+                    }
                   />
                 </motion.div>
               )}
@@ -600,7 +706,9 @@ export default function PlanWithAI() {
                   </h2>
                   <LocationPreference
                     value={formData.locationPreference}
-                    onChange={(value) => setFormData({ ...formData, locationPreference: value })}
+                    onChange={(value) =>
+                      setFormData({ ...formData, locationPreference: value })
+                    }
                   />
                 </motion.div>
               )}
@@ -630,7 +738,7 @@ export default function PlanWithAI() {
                   disabled={loading}
                   className="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-white hover:from-teal-600 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
                 >
-                  {loading ? 'Finding Destinations...' : 'Get Suggestions'}
+                  {loading ? "Finding Destinations..." : "Get Suggestions"}
                 </button>
               )}
             </div>
@@ -643,14 +751,24 @@ export default function PlanWithAI() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <FaSpinner className="animate-spin text-5xl text-teal-500 mb-4" />
-            <p className="text-teal-600 text-xl">Finding your perfect destinations...</p>
+            <p className="text-teal-600 text-xl">
+              Finding your perfect destinations...
+            </p>
           </div>
         ) : error ? (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-red-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
@@ -665,7 +783,10 @@ export default function PlanWithAI() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {suggestions.map((suggestion) => (
-                <SuggestionCard key={suggestion.id || suggestion.destination} suggestion={suggestion} />
+                <SuggestionCard
+                  key={suggestion.id || suggestion.destination}
+                  suggestion={suggestion}
+                />
               ))}
             </div>
           </>

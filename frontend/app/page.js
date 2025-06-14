@@ -700,7 +700,7 @@ export default function Home() {
               }}
             >
               <Link
-                href="/wapi-trip-planner"
+                href="/planner"
                 className="group relative inline-flex items-center justify-center px-12 py-5 text-xl font-bold text-white rounded-full overflow-hidden"
               >
                 {/* Button Background */}

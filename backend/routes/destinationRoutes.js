@@ -1,6 +1,7 @@
-const express = require("express");
+import express from "express";
+import Destination from "../models/Destinations.js";
+
 const router = express.Router();
-const Destination = require("../models/Destinations");
 
 // GET all destinations
 router.get("/", async (req, res) => {
@@ -27,52 +28,42 @@ router.get("/filter", async (req, res) => {
 
     const filter = {};
 
-    // Handle region filter
     if (region) {
       filter.region = { $regex: new RegExp(region, 'i') };
     }
 
-    // Handle category filter
     if (category) {
       filter.category = { $regex: new RegExp(category, 'i') };
     }
 
-    // Handle budget filter
     if (budget) {
       const budgetRegex = new RegExp(budget.replace('₹', '\u20B9'), 'i');
       filter.budget = { $regex: budgetRegex };
     }
 
-    // Handle duration filter
     if (duration) {
       filter.duration = { $regex: new RegExp(duration, 'i') };
     }
 
-    // Handle rating filter
     if (rating) {
       const stars = parseInt(rating.split('⭐').length - 1);
       filter.rating = { $gte: stars };
     }
 
-    // Handle popularity filter
     if (isPopular === 'true') {
       filter.isPopular = true;
     }
 
-    // Handle trending filter
     if (isTrending === 'true') {
       filter.isTrending = true;
     }
 
-    // Add pagination support
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
-    // Get total count for pagination
     const total = await Destination.countDocuments(filter);
     
-    // Get filtered destinations
     const destinations = await Destination.find(filter)
       .skip(skip)
       .limit(limit)
@@ -105,4 +96,4 @@ router.post("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

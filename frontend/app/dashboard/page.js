@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../firebase/config';
-import axios from '../../lib/axios';
+import axios from "@/lib/axios";
 import Image from 'next/image';
 import { Country, State, City } from 'country-state-city';
 
@@ -34,7 +34,7 @@ export default function DashboardPage() {
       if (currentUser) {
         const token = await currentUser.getIdToken();
         try {
-          const response = await axios.get(`/api/users/${currentUser.uid}`, {
+          const response = await axios.get(`/api/v1/user/${currentUser.uid}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUser(response.data);
@@ -91,7 +91,7 @@ export default function DashboardPage() {
     if (!currentUser) return;
     const token = await currentUser.getIdToken();
     try {
-      await axios.put(`/api/user/${currentUser.uid}`, form, {
+      await axios.put(`/api/v1/user/${currentUser.uid}`, form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Profile updated successfully!');

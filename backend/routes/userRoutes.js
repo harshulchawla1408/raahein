@@ -1,8 +1,10 @@
-const express = require("express");
+import express from 'express';
+import verifyFirebaseToken from '../middlewares/verifyFirebaseToken.js';
+import { createOrUpdateUser } from '../controllers/userController.js';
+
 const router = express.Router();
-const verifyFirebaseToken = require("../middlewares/verifyFirebaseToken");
-const { createOrUpdateUser } = require("../controllers/userController");
 
-router.post("/user", verifyFirebaseToken, createOrUpdateUser);
+// POST /api/user - Create or update user from Firebase token
+router.post('/user', verifyFirebaseToken, createOrUpdateUser);
 
-module.exports = router;
+export default router;

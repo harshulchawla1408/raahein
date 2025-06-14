@@ -1,7 +1,12 @@
-const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
-const path = require('path');
-const packageJson = require('../package.json');
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import packageJson from '../package.json' with { type: 'json' };
+
+// To replace __dirname in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const options = {
   definition: {
@@ -42,31 +47,14 @@ const options = {
         Destination: {
           type: 'object',
           properties: {
-            name: {
-              type: 'string',
-              example: 'Goa',
-            },
-            description: {
-              type: 'string',
-              example: 'Famous for its beautiful beaches, vibrant nightlife, and Portuguese heritage.',
-            },
-            estimatedCost: {
-              type: 'number',
-              example: 35000,
-            },
-            duration: {
-              type: 'string',
-              example: '5 days',
-            },
-            bestTimeToVisit: {
-              type: 'string',
-              example: 'November to February',
-            },
+            name: { type: 'string', example: 'Goa' },
+            description: { type: 'string', example: 'Famous for its beautiful beaches...' },
+            estimatedCost: { type: 'number', example: 35000 },
+            duration: { type: 'string', example: '5 days' },
+            bestTimeToVisit: { type: 'string', example: 'November to February' },
             activities: {
               type: 'array',
-              items: {
-                type: 'string',
-              },
+              items: { type: 'string' },
               example: ['Beach hopping', 'Water sports', 'Dolphin spotting'],
             },
           },
@@ -74,29 +62,14 @@ const options = {
         Error: {
           type: 'object',
           properties: {
-            status: {
-              type: 'string',
-              example: 'error',
-            },
-            message: {
-              type: 'string',
-              example: 'Error message describing the issue',
-            },
+            status: { type: 'string', example: 'error' },
+            message: { type: 'string', example: 'Error message describing the issue' },
             error: {
               type: 'object',
               properties: {
-                statusCode: {
-                  type: 'number',
-                  example: 400,
-                },
-                status: {
-                  type: 'string',
-                  example: 'fail',
-                },
-                message: {
-                  type: 'string',
-                  example: 'Detailed error message',
-                },
+                statusCode: { type: 'number', example: 400 },
+                status: { type: 'string', example: 'fail' },
+                message: { type: 'string', example: 'Detailed error message' },
               },
             },
           },
@@ -107,9 +80,7 @@ const options = {
           description: 'Access token is missing or invalid',
           content: {
             'application/json': {
-              schema: {
-                $ref: '#/components/schemas/Error',
-              },
+              schema: { $ref: '#/components/schemas/Error' },
               example: {
                 status: 'error',
                 message: 'Please authenticate',
@@ -121,9 +92,7 @@ const options = {
           description: 'Validation error',
           content: {
             'application/json': {
-              schema: {
-                $ref: '#/components/schemas/Error',
-              },
+              schema: { $ref: '#/components/schemas/Error' },
               example: {
                 status: 'fail',
                 message: 'Validation Error',
@@ -149,4 +118,4 @@ const options = {
 
 const specs = swaggerJsdoc(options);
 
-module.exports = { specs, swaggerUi };
+export { specs, swaggerUi };

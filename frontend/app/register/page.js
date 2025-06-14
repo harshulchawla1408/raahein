@@ -1,9 +1,10 @@
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { register, loginWithGoogle } from '../../firebase/auth';
 import { auth } from '../../firebase/config';
-import userAxios from '../../lib/userAxios';
+import axios from '@/lib/axios';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -14,7 +15,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleRegister = async (e) => {
@@ -24,14 +25,24 @@ export default function RegisterPage() {
       await register(form.email, form.password);
       const user = auth.currentUser;
       const token = await user.getIdToken();
-      await userAxios.post('/', {
-        name: form.name,
-        email: form.email,
-      });
+
+      await axios.post(
+        "/api/v1/user/user",
+        {
+          name: form.name,
+          email: form.email,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       router.push('/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
-      alert(err.response?.data?.error || 'Registration failed');
+      alert(err?.response?.data?.error || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -42,14 +53,25 @@ export default function RegisterPage() {
     try {
       await loginWithGoogle();
       const user = auth.currentUser;
-      await userAxios.post('/', {
-        name: user.displayName,
-        email: user.email,
-      });
+      const token = await user.getIdToken();
+
+      await axios.post(
+        "/api/v1/user/user",
+        {
+          name: form.name,
+          email: form.email,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       router.push('/dashboard');
     } catch (err) {
       console.error('Google sign-up error:', err);
-      alert(err.response?.data?.error || 'Google sign-up failed');
+      alert(err?.response?.data?.error || 'Google sign-up failed');
     } finally {
       setLoading(false);
     }
@@ -57,8 +79,7 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-8 overflow-hidden">
-      
-      {/* Background blurred image */}
+      {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/register.jpg"
@@ -70,13 +91,12 @@ export default function RegisterPage() {
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* Main content box */}
+      {/* Main Container */}
       <div className="relative z-10 w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row">
         
-        {/* Left Side */}
+        {/* Form Section */}
         <div className="w-full lg:w-1/2 p-8">
           <div className="flex items-center gap-2 mb-12">
-            {/* <Image src="/plane-icon.svg" alt="Raahein" width={24} height={24} /> */}
             <h1 className="text-2xl font-bold text-gray-800">RAAHEIN</h1>
           </div>
 
@@ -166,7 +186,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Right Side */}
+        {/* Right Image Section */}
         <div className="hidden lg:block lg:w-1/2 relative">
           <div className="absolute inset-0 border-10 border-white rounded-r-2xl overflow-hidden">
             <Image
@@ -184,7 +204,6 @@ export default function RegisterPage() {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -1,13 +1,13 @@
-require("dotenv").config();
-const axios = require("axios");
-const logger = require('../config/logger');
+import dotenv from 'dotenv';
+import axios from 'axios';
+import logger from '../config/logger.js';
 
-// Maximum number of retries for API calls
+dotenv.config();
+
 const MAX_RETRIES = 2;
-// Timeout for API requests in milliseconds
 const API_TIMEOUT = 30000;
+const GEMINI_URL = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
-// System prompt template
 const SYSTEM_PROMPT = `You are a knowledgeable travel assistant that provides personalized travel destination recommendations. 
 Your response must be a valid JSON array of exactly 3 destination objects. Each object must have these exact fields:
 - name: String (destination name)
@@ -24,10 +24,9 @@ Format your response as a JSON array only, with no additional text or markdown.`
  * @param {Object} input - User input parameters
  * @returns {Promise<Array>} Array of destination objects
  */
-exports.getGeminiResponse = async (input) => {
+export async function getGeminiResponse(input) {
   const { age, groupType, interests, budget, duration, season, locationPreference } = input;
-  
-  // Construct the user prompt
+
   const userPrompt = `I'm a ${age}-year-old planning a ${duration} ${groupType} trip during ${season}. 
 My interests are: ${interests.join(", ")}.
 My budget is between ₹${budget.min} and ₹${budget.max}.
@@ -37,18 +36,9 @@ Please suggest 3 destinations that would be a good fit.`;
 
   const requestData = {
     contents: [
-      {
-        role: "user",
-        parts: [{ text: SYSTEM_PROMPT }]
-      },
-      {
-        role: "model",
-        parts: [{ text: "I understand. Please provide your travel preferences and I'll suggest 3 destinations in JSON format." }]
-      },
-      {
-        role: "user",
-        parts: [{ text: userPrompt }]
-      }
+      { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
+      { role: "model", parts: [{ text: "I understand. Please provide your travel preferences and I'll suggest 3 destinations in JSON format." }] },
+      { role: "user", parts: [{ text: userPrompt }] }
     ],
     generationConfig: {
       temperature: 0.7,
@@ -57,22 +47,10 @@ Please suggest 3 destinations that would be a good fit.`;
       maxOutputTokens: 2048,
     },
     safetySettings: [
-      {
-        category: "HARM_CATEGORY_HARASSMENT",
-        threshold: "BLOCK_ONLY_HIGH"
-      },
-      {
-        category: "HARM_CATEGORY_HATE_SPEECH",
-        threshold: "BLOCK_ONLY_HIGH"
-      },
-      {
-        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        threshold: "BLOCK_ONLY_HIGH"
-      },
-      {
-        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold: "BLOCK_ONLY_HIGH"
-      }
+      { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+      { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+      { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
+      { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" },
     ]
   };
 
@@ -82,47 +60,37 @@ Please suggest 3 destinations that would be a good fit.`;
   while (attempt < MAX_RETRIES) {
     try {
       attempt++;
-      
-      const response = await axios({
-        method: 'post',
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        data: requestData,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: API_TIMEOUT,
-      });
+
+      const response = await axios.post(
+        `${GEMINI_URL}?key=${process.env.GEMINI_API_KEY}`, requestData,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: API_TIMEOUT,
+        }
+      );
 
       const rawText = response.data.candidates?.[0]?.content?.parts?.[0]?.text;
-      
-      if (!rawText) {
-        throw new Error('Empty response from Gemini API');
-      }
+      if (!rawText) throw new Error('Empty response from Gemini API');
 
       const destinations = parseAndValidateResponse(rawText);
-      
-      // Ensure we have exactly 3 destinations
       if (destinations.length !== 3) {
         throw new Error(`Expected 3 destinations, got ${destinations.length}`);
       }
-      
+
       return destinations;
-      
+
     } catch (error) {
       lastError = error;
-      logger.warn(`Attempt ${attempt} failed: ${error.message}`);
-      
-      // If it's not the last attempt, wait before retrying
+      logger.warn(`Gemini attempt ${attempt} failed: ${error.message}`);
+
       if (attempt < MAX_RETRIES) {
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
-        continue;
+        await new Promise(res => setTimeout(res, 1000 * attempt));
       }
     }
   }
 
-  // If we get here, all attempts failed
   throw lastError || new Error('Failed to get response from Gemini API');
-};
+}
 
 /**
  * Parse and validate the raw text response from Gemini API
@@ -131,39 +99,20 @@ Please suggest 3 destinations that would be a good fit.`;
  */
 function parseAndValidateResponse(rawText) {
   try {
-    // Extract JSON from markdown code blocks if present
     let jsonText = rawText;
-    const jsonMatch = rawText.match(/```(?:json)?\n([\s\S]*?)\n```/);
-    if (jsonMatch && jsonMatch[1]) {
-      jsonText = jsonMatch[1];
-    }
-    
-    // Parse the JSON
+    const match = rawText.match(/```(?:json)?\n([\s\S]*?)\n```/);
+    if (match?.[1]) jsonText = match[1];
+
     const destinations = JSON.parse(jsonText);
-    
-    if (!Array.isArray(destinations)) {
-      throw new Error('Response is not an array');
-    }
-    
-    // Validate each destination
-    return destinations.map((dest, index) => {
-      if (!dest.name || typeof dest.name !== 'string') {
-        throw new Error(`Destination ${index + 1} is missing or has an invalid name`);
-      }
-      
-      if (!dest.description || typeof dest.description !== 'string') {
-        throw new Error(`Destination ${index + 1} is missing or has an invalid description`);
-      }
-      
-      if (typeof dest.estimatedCost !== 'number' || dest.estimatedCost <= 0) {
-        throw new Error(`Destination ${index + 1} has an invalid estimatedCost`);
-      }
-      
-      if (!dest.duration || typeof dest.duration !== 'string') {
-        throw new Error(`Destination ${index + 1} is missing or has an invalid duration`);
-      }
-      
-      // Add default values for optional fields
+
+    if (!Array.isArray(destinations)) throw new Error('Response is not an array');
+
+    return destinations.map((dest, idx) => {
+      if (!dest.name || typeof dest.name !== 'string') throw new Error(`Destination ${idx + 1} has invalid name`);
+      if (!dest.description || typeof dest.description !== 'string') throw new Error(`Destination ${idx + 1} has invalid description`);
+      if (typeof dest.estimatedCost !== 'number' || dest.estimatedCost <= 0) throw new Error(`Destination ${idx + 1} has invalid estimatedCost`);
+      if (!dest.duration || typeof dest.duration !== 'string') throw new Error(`Destination ${idx + 1} has invalid duration`);
+
       return {
         name: dest.name.trim(),
         description: dest.description.trim(),
@@ -173,9 +122,9 @@ function parseAndValidateResponse(rawText) {
         activities: Array.isArray(dest.activities) ? dest.activities : []
       };
     });
-    
-  } catch (error) {
-    logger.error('Failed to parse AI response', { error: error.message, rawText });
-    throw new Error(`Invalid response format from AI: ${error.message}`);
+
+  } catch (err) {
+    logger.error('Failed to parse AI response', { error: err.message, rawText });
+    throw new Error(`Invalid response format from AI: ${err.message}`);
   }
 }
