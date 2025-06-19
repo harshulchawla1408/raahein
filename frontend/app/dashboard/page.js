@@ -1,11 +1,11 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../firebase/config';
 import axios from "@/lib/axios";
 import Image from 'next/image';
 import { Country, State, City } from 'country-state-city';
+import { signOut } from "firebase/auth";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -27,18 +27,40 @@ export default function DashboardPage() {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [isPhotoHovered, setIsPhotoHovered] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
+
 
   useEffect(() => {
     const fetchUserData = async () => {
       const currentUser = auth.currentUser;
       if (currentUser) {
+        // Set basic user info from Firebase auth
+        setUser({
+          displayName: currentUser.displayName,
+          email: currentUser.email,
+          photoURL: currentUser.photoURL,
+        });
+        
+        // Set form with basic info
+        setForm(prev => ({
+          ...prev,
+          name: currentUser.displayName || '',
+          email: currentUser.email || '',
+        }));
+
         const token = await currentUser.getIdToken();
         try {
           const response = await axios.get(`/api/v1/user/${currentUser.uid}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          setUser(response.data);
-          setForm((prev) => ({
+          // Update user with additional data from backend
+          setUser(prev => ({
+            ...prev,
+            ...response.data
+          }));
+          // Update form with additional data
+          setForm(prev => ({
             ...prev,
             ...response.data,
           }));
@@ -88,22 +110,39 @@ export default function DashboardPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const currentUser = auth.currentUser;
-    if (!currentUser) return;
-    const token = await currentUser.getIdToken();
+    if (!currentUser) {
+      alert('No user is logged in');
+      return;
+    }
+    
     try {
-      await axios.put(`/api/v1/user/${currentUser.uid}`, form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const token = await currentUser.getIdToken();
+      console.log('Submitting form data:', form); // Debug log
+      
+      // Using the correct endpoint with v1 prefix
+      const response = await axios.put(`/api/v1/user-profile`, form);
+      
+      console.log('Update response:', response.data); // Debug log
       alert('Profile updated successfully!');
     } catch (err) {
-      alert('Failed to update profile');
+      console.error('Error updating profile:', err.response?.data || err.message);
+      if (err.response?.status === 404) {
+        alert('Backend server not found. Please make sure your backend server is running on http://localhost:8000');
+      } else {
+        alert(`Failed to update profile: ${err.response?.data?.message || err.message}`);
+      }
     }
   };
 
   const handleLogout = async () => {
-    await auth.signOut();
-    router.push('/login');
-  };
+  try {
+    await signOut(auth);
+    router.push('/');
+    // Redirect to login page or show a message
+  } catch (error) {
+    console.error("Error signing out:", error);
+  }
+};
 
   const handleCountryChange = (e) => {
     const selectedCountryCode = e.target.value;
@@ -117,6 +156,14 @@ export default function DashboardPage() {
     setStates(countryStates);
     setCities([]);
   };
+  const handlePhotoChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setPhotoPreview(URL.createObjectURL(file));
+        setPhotoFile(file);
+      }
+    };
+  
 
   const handleStateChange = (e) => {
     const value = e.target.value;
@@ -138,15 +185,50 @@ export default function DashboardPage() {
     <div className="min-h-screen flex bg-gradient-to-br from-blue-100 to-teal-100">
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg p-6 flex flex-col items-center">
-        <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
-          <Image
-            src={user?.photoURL || '/default-avatar.png'}
-            alt="Profile"
-            width={128}
-            height={128}
-            className="object-cover"
-          />
-        </div>
+       <div
+  className="w-32 h-32 rounded-full overflow-hidden mb-4 relative group"
+  onMouseEnter={() => setIsPhotoHovered(true)}
+  onMouseLeave={() => setIsPhotoHovered(false)}
+>
+  <Image
+    src={photoPreview || user?.photoURL || '/default-avatar.png'}
+    alt="Profile"
+    width={128}
+    height={128}
+    className="object-cover w-full h-full"
+  />
+  {/* Pencil Icon Overlay */}
+  <label
+    htmlFor="profile-photo-upload"
+    className={`absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 cursor-pointer transition-opacity duration-200 ${
+      isPhotoHovered ? 'opacity-100' : 'opacity-0'
+    }`}
+    style={{ pointerEvents: isPhotoHovered ? 'auto' : 'none' }}
+  >
+    {/* Pencil SVG */}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-8 w-8 text-white"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H7v-3a2 2 0 01.586-1.414z"
+      />
+    </svg>
+    <input
+      id="profile-photo-upload"
+      type="file"
+      accept="image/*"
+      onChange={handlePhotoChange}
+      className="hidden"
+    />
+  </label>
+</div>
         <h2 className="text-xl font-bold mb-2">Hey, {user?.displayName || 'User'}!</h2>
         <button
           onClick={handleLogout}

@@ -7,6 +7,9 @@ export const logout = () => signOut(auth);
 
 // Google Sign-In
 export const loginWithGoogle = () => {
-  const provider = new GoogleAuthProvider();
+ const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  prompt: "select_account"
+});
   return signInWithPopup(auth, provider);
 };

@@ -14,6 +14,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
 
   const fetchUserProfile = async () => {
     const currentUser = auth.currentUser;
@@ -52,6 +54,7 @@ export default function LoginPage() {
     }
   };
 
+  
   return (
     <div className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden">
       {/* Background Image */}
