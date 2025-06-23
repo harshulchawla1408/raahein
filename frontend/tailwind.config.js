@@ -1,6 +1,5 @@
-module.exports = {
-  purge: [],
-  darkMode: false, // or 'media' or 'class'
+export default {
+  darkMode: false,
   theme: {
     extend: {},
   },
@@ -9,3 +8,53 @@ module.exports = {
   },
   plugins: [],
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.darkMode

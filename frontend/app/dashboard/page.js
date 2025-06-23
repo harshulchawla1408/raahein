@@ -93,19 +93,21 @@ export default function DashboardPage() {
     }
   }, [form.state, form.country]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (type === 'checkbox') {
-      setForm((prev) => ({
-        ...prev,
-        travelPreferences: checked
-          ? [...prev.travelPreferences, value]
-          : prev.travelPreferences.filter((item) => item !== value),
-      }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
-  };
+ const handleChange = (e) => {
+  const { name, value, type, checked } = e.target;
+
+  if (type === 'checkbox' && name === 'travelPreferences') {
+    setForm((prev) => ({
+      ...prev,
+      travelPreferences: checked
+        ? [...prev.travelPreferences, value]
+        : prev.travelPreferences.filter((item) => item !== value),
+    }));
+  } else {
+    setForm((prev) => ({ ...prev, [name]: value }));
+  }
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

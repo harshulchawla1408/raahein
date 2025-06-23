@@ -9,6 +9,10 @@ import PopularDestinations from '../components/PopularDestinations';
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [positions, setPositions] = useState([]);
+    const [emojiPositions, setEmojiPositions] = useState([]);
+  const [circlePositions, setCirclePositions] = useState([]);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +29,20 @@ export default function Home() {
       setIsMobileMenuOpen(false);
     }
   };
+
+  useEffect(() => {
+  const emojis = [...Array(8)].map(() => ({
+    top: `${Math.floor(Math.random() * 80) + 10}%`,
+    left: `${Math.floor(Math.random() * 80) + 10}%`,
+  }));
+  const circles = [...Array(3)].map(() => ({
+    top: `${Math.floor(Math.random() * 80) + 10}%`,
+    left: `${Math.floor(Math.random() * 80) + 10}%`,
+  }));
+  setEmojiPositions(emojis);
+  setCirclePositions(circles);
+}, []);
+
 
   return (
     <div className="smooth-scroll">
@@ -561,58 +579,60 @@ export default function Home() {
               </svg>
             </motion.div>
 
-            {/* Floating Elements */}
-            {[...Array(8)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute"
-                style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  rotate: [0, 10, -10, 0],
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 5 + i,
-                  repeat: Infinity,
-                  delay: i * 0.5,
-                }}
-              >
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  i % 2 === 0 ? 'bg-primary/10' : 'bg-blue-500/10'
-                }`}>
-                  <span className="text-2xl">
-                    {['✈', '🌍', '🗺', '🎒', '🏖', '🏔', '🗽', '🎡'][i]}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
+            {/* Floating Emojis */}
+{emojiPositions.map((pos, i) => (
+  <motion.div
+    key={i}
+    className="absolute"
+    style={{
+      top: pos.top,
+      left: pos.left
+    }}
+    animate={{
+      y: [0, -20, 0],
+      rotate: [0, 10, -10, 0],
+      scale: [1, 1.1, 1],
+    }}
+    transition={{
+      duration: 5 + i,
+      repeat: Infinity,
+      delay: i * 0.5,
+    }}
+  >
+    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+      i % 2 === 0 ? 'bg-primary/10' : 'bg-blue-500/10'
+    }`}>
+      <span className="text-2xl">
+        {['✈', '🌍', '🗺', '🎒', '🏖', '🏔', '🗽', '🎡'][i]}
+      </span>
+    </div>
+  </motion.div>
+))}
+
 
             {/* Animated Circles */}
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={`circle-${i}`}
-                className="absolute rounded-full bg-gradient-to-r from-primary/20 to-blue-500/20"
-                style={{
-                  width: `${(i + 1) * 200}px`,
-                  height: `${(i + 1) * 200}px`,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`
-                }}
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.5, 0.3],
-                }}
-                transition={{
-                  duration: 8 + i * 2,
-                  repeat: Infinity,
-                  delay: i * 2,
-                }}
-              />
-            ))}
+{circlePositions.map((pos, i) => (
+  <motion.div
+    key={`circle-${i}`}
+    className="absolute rounded-full bg-gradient-to-r from-primary/20 to-blue-500/20"
+    style={{
+      width: `${(i + 1) * 200}px`,
+      height: `${(i + 1) * 200}px`,
+      top: pos.top,
+      left: pos.left
+    }}
+    animate={{
+      scale: [1, 1.2, 1],
+      opacity: [0.3, 0.5, 0.3],
+    }}
+    transition={{
+      duration: 8 + i * 2,
+      repeat: Infinity,
+      delay: i * 2,
+    }}
+  />
+))}
+
           </div>
 
           {/* Gradient Overlay */}
