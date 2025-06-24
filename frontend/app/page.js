@@ -1,97 +1,46 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { FaArrowDown, FaBars, FaTimes, FaMoneyBillWave, FaMapMarkedAlt, FaCalendarAlt, FaRobot, FaPlay } from 'react-icons/fa';
+import { FaArrowDown, FaMoneyBillWave, FaMapMarkedAlt, FaCalendarAlt, FaRobot, FaPlay } from 'react-icons/fa';
 import PopularDestinations from '../components/PopularDestinations';
+import Navbar from '../components/Navbar';
 
 export default function Home() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [positions, setPositions] = useState([]);
-    const [emojiPositions, setEmojiPositions] = useState([]);
+  const [emojiPositions, setEmojiPositions] = useState([]);
   const [circlePositions, setCirclePositions] = useState([]);
-
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const [hasMounted, setHasMounted] = useState(false);
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      setIsMobileMenuOpen(false);
+      // setIsMobileMenuOpen(false); // handled in Navbar
     }
   };
 
   useEffect(() => {
-  const emojis = [...Array(8)].map(() => ({
-    top: `${Math.floor(Math.random() * 80) + 10}%`,
-    left: `${Math.floor(Math.random() * 80) + 10}%`,
-  }));
-  const circles = [...Array(3)].map(() => ({
-    top: `${Math.floor(Math.random() * 80) + 10}%`,
-    left: `${Math.floor(Math.random() * 80) + 10}%`,
-  }));
-  setEmojiPositions(emojis);
-  setCirclePositions(circles);
-}, []);
+    setHasMounted(true);
+    if (typeof window !== 'undefined') {
+      const emojis = [...Array(8)].map(() => ({
+        top: `${Math.floor(Math.random() * 80) + 10}%`,
+        left: `${Math.floor(Math.random() * 80) + 10}%`,
+      }));
+      const circles = [...Array(3)].map(() => ({
+        top: `${Math.floor(Math.random() * 80) + 10}%`,
+        left: `${Math.floor(Math.random() * 80) + 10}%`,
+      }));
+      setEmojiPositions(emojis);
+      setCirclePositions(circles);
+    }
+  }, []);
 
 
   return (
     <div className="smooth-scroll">
       {/* Header/Navbar */}
-      <header className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/90 backdrop-blur-md shadow-md' : 'bg-transparent'
-      }`}>
-        <nav className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-primary">TravelMate</div>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <button onClick={() => scrollToSection('about')} className="nav-link">About Us</button>
-              <button onClick={() => scrollToSection('contact')} className="nav-link">Get in Touch</button>
-              <Link href="/login" className="btn-primary">Login</Link>
-              <Link href="/register" className="btn-secondary">Signup</Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden text-text"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-            </button>
-          </div>
-
-          {/* Mobile Navigation Menu */}
-          <AnimatePresence>
-            {isMobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="md:hidden mt-4"
-              >
-                <div className="flex flex-col space-y-4">
-                  <button onClick={() => scrollToSection('about')} className="nav-link text-left">About Us</button>
-                  <button onClick={() => scrollToSection('contact')} className="nav-link text-left">Get in Touch</button>
-                  <Link href="/login" className="btn-primary w-full text-center">Login</Link>
-                  <Link href="/register" className="btn-secondary w-full text-center">Signup</Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </nav>
-      </header>
+      <Navbar scrollToSection={scrollToSection} />
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center">
@@ -502,7 +451,7 @@ export default function Home() {
                 <blockquote className="text-gray-600 mb-6 relative">
                   <svg className="absolute -top-2 -left-2 w-8 h-8 text-sky-200" fill="currentColor" viewBox="0 0 32 32">
                     <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
-                  </svg>
+                </svg>
                   <p className="text-lg leading-relaxed">{testimonial.review}</p>
                 </blockquote>
 
@@ -580,59 +529,57 @@ export default function Home() {
             </motion.div>
 
             {/* Floating Emojis */}
-{emojiPositions.map((pos, i) => (
-  <motion.div
-    key={i}
-    className="absolute"
-    style={{
-      top: pos.top,
-      left: pos.left
-    }}
-    animate={{
-      y: [0, -20, 0],
-      rotate: [0, 10, -10, 0],
-      scale: [1, 1.1, 1],
-    }}
-    transition={{
-      duration: 5 + i,
-      repeat: Infinity,
-      delay: i * 0.5,
-    }}
-  >
-    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-      i % 2 === 0 ? 'bg-primary/10' : 'bg-blue-500/10'
-    }`}>
-      <span className="text-2xl">
-        {['✈', '🌍', '🗺', '🎒', '🏖', '🏔', '🗽', '🎡'][i]}
-      </span>
-    </div>
-  </motion.div>
-))}
-
+            {hasMounted && emojiPositions.map((pos, i) => (
+              <motion.div
+                key={i}
+                className="absolute"
+                style={{
+                  top: pos.top,
+                  left: pos.left
+                }}
+                animate={{
+                  y: [0, -20, 0],
+                  rotate: [0, 10, -10, 0],
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 5 + i,
+                  repeat: Infinity,
+                  delay: i * 0.5,
+                }}
+              >
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  i % 2 === 0 ? 'bg-primary/10' : 'bg-blue-500/10'
+                }`}>
+                  <span className="text-2xl">
+                    {['✈', '🌍', '🗺', '🎒', '🏖', '🏔', '🗽', '🎡'][i]}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
 
             {/* Animated Circles */}
-{circlePositions.map((pos, i) => (
-  <motion.div
-    key={`circle-${i}`}
-    className="absolute rounded-full bg-gradient-to-r from-primary/20 to-blue-500/20"
-    style={{
-      width: `${(i + 1) * 200}px`,
-      height: `${(i + 1) * 200}px`,
-      top: pos.top,
-      left: pos.left
-    }}
-    animate={{
-      scale: [1, 1.2, 1],
-      opacity: [0.3, 0.5, 0.3],
-    }}
-    transition={{
-      duration: 8 + i * 2,
-      repeat: Infinity,
-      delay: i * 2,
-    }}
-  />
-))}
-
+            {hasMounted && circlePositions.map((pos, i) => (
+              <motion.div
+                key={`circle-${i}`}
+                className="absolute rounded-full bg-gradient-to-r from-primary/20 to-blue-500/20"
+                style={{
+                  width: `${(i + 1) * 200}px`,
+                  height: `${(i + 1) * 200}px`,
+                  top: pos.top,
+                  left: pos.left
+                }}
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8 + i * 2,
+                  repeat: Infinity,
+                  delay: i * 2,
+                }}
+              />
+            ))}
           </div>
 
           {/* Gradient Overlay */}

@@ -6,10 +6,6 @@ import logger from '../config/logger.js';
  * @route   POST /api/ai/suggest-destinations
  * @desc    Get AI-generated travel destination suggestions
  * @access  Private
- * @param   {Object} req - Express request object
- * @param   {Object} req.body - User preferences for travel suggestions
- * @param   {string} req.user.uid - Firebase UID of the authenticated user
- * @returns {Array} Array of suggested destinations
  */
 export const recommendDestinations = async (req, res) => {
   const userId = req.user?.uid || 'guest';
@@ -20,12 +16,30 @@ export const recommendDestinations = async (req, res) => {
     input: userInput
   });
 
+  // Validate required fields
+  const requiredFields = ['age', 'groupType', 'interests', 'budget', 'duration', 'season', 'locationPreference'];
+  for (const field of requiredFields) {
+    if (userInput[field] === undefined || userInput[field] === null || userInput[field] === '') {
+      logger.warn(`[${requestId}] Missing required field: ${field}`);
+      return res.status(400).json({
+        success: false,
+        error: `Missing required field: ${field}`,
+        requestId
+      });
+    }
+  }
+
   try {
-    // Get AI response
+    // Get AI response (filtered and/or generated)
     const aiResult = await getGeminiResponse(userInput);
-    
+
     if (!aiResult || !Array.isArray(aiResult) || aiResult.length === 0) {
-      throw new Error('Invalid response format from AI service');
+      logger.warn(`[${requestId}] No AI suggestions returned`);
+      return res.status(200).json({
+        success: true,
+        data: [],
+        requestId
+      });
     }
 
     logger.info(`[${requestId}] Successfully generated ${aiResult.length} destination suggestions`);
@@ -45,16 +59,16 @@ export const recommendDestinations = async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      data: aiResult,
-      requestId
-    });
+    // Track user usage (bonus)
+    logger.info(`[${requestId}] User ${userId} triggered AI planner`);
+
+    // Return only the array, not wrapped in {data: ...}
+    res.status(200).json(aiResult);
 
   } catch (error) {
     const errorMessage = error.response?.data?.error?.message || error.message || 'AI service error';
     const statusCode = error.response?.status || 500;
-    
+
     logger.error(`[${requestId}] AI suggestion failed: ${errorMessage}`, {
       error: error.message,
       stack: error.stack,

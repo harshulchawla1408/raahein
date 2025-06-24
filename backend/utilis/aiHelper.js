@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import axios from 'axios';
 import logger from '../config/logger.js';
+import Destination from '../models/Destinations.js'; // <-- Make sure this model exists and is correct
 
 dotenv.config();
 
@@ -27,6 +28,39 @@ Format your response as a JSON array only, with no additional text or markdown.`
 export async function getGeminiResponse(input) {
   const { age, groupType, interests, budget, duration, season, locationPreference } = input;
 
+  // 1. Try to filter from DB first
+  let dbSuggestions = [];
+  try {
+    // Build query based on preferences
+    const query = {
+      estimatedCost: { $gte: budget.min, $lte: budget.max },
+      ...(locationPreference !== 'any' && { locationType: locationPreference }),
+      ...(interests?.length > 0 && { tags: { $in: interests } }),
+    };
+    dbSuggestions = await Destination.find(query).limit(10).lean();
+
+    // Map DB results to required format
+    dbSuggestions = dbSuggestions.map(dest => ({
+      name: dest.name,
+      description: dest.description,
+      estimatedCost: dest.estimatedCost,
+      duration: dest.duration || duration,
+      bestTimeToVisit: dest.bestTimeToVisit || 'Year-round',
+      activities: dest.activities || [],
+    }));
+
+    logger.info(`DB filter found ${dbSuggestions.length} destinations`);
+  } catch (err) {
+    logger.warn('DB filter failed', { error: err.message });
+  }
+
+  // 2. If enough DB matches, return up to 3
+  if (dbSuggestions.length >= 3) {
+    return dbSuggestions.slice(0, 3);
+  }
+
+  // 3. Otherwise, fallback to Gemini/OpenAI
+  logger.info('Falling back to Gemini/OpenAI for suggestions');
   const userPrompt = `I'm a ${age}-year-old planning a ${duration} ${groupType} trip during ${season}. 
 My interests are: ${interests.join(", ")}.
 My budget is between ₹${budget.min} and ₹${budget.max}.
@@ -34,10 +68,10 @@ I prefer ${locationPreference} destinations.
 
 Please suggest 3 destinations that would be a good fit.`;
 
+  // Gemini expects `contents` to be an array of objects with `role` and `parts` (each part is an object with `text`)
   const requestData = {
     contents: [
       { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
-      { role: "model", parts: [{ text: "I understand. Please provide your travel preferences and I'll suggest 3 destinations in JSON format." }] },
       { role: "user", parts: [{ text: userPrompt }] }
     ],
     generationConfig: {
@@ -89,7 +123,34 @@ Please suggest 3 destinations that would be a good fit.`;
     }
   }
 
-  throw lastError || new Error('Failed to get response from Gemini API');
+  // 4. Fallback: If everything fails, return a default
+  logger.error('AI and DB fallback failed, returning default destinations');
+  return [
+    {
+      name: "Goa",
+      description: "A vibrant beach destination on India's west coast, famous for its lively nightlife, beautiful beaches, and Portuguese heritage.",
+      estimatedCost: 15000,
+      duration: "5 days",
+      bestTimeToVisit: "October to March",
+      activities: ["Beach parties", "Water sports", "Historic forts"]
+    },
+    {
+      name: "Manali",
+      description: "A scenic hill station in the Himalayas, perfect for adventure seekers and nature lovers, offering snow-capped peaks and lush valleys.",
+      estimatedCost: 18000,
+      duration: "6 days",
+      bestTimeToVisit: "March to June, October to February",
+      activities: ["Trekking", "Paragliding", "River rafting"]
+    },
+    {
+      name: "Andaman Islands",
+      description: "A tropical paradise with crystal-clear waters, white sandy beaches, and rich marine life, ideal for a relaxing getaway.",
+      estimatedCost: 25000,
+      duration: "7 days",
+      bestTimeToVisit: "November to May",
+      activities: ["Snorkeling", "Scuba diving", "Island hopping"]
+    }
+  ];
 }
 
 /**

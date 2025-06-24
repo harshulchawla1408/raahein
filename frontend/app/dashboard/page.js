@@ -65,7 +65,12 @@ export default function DashboardPage() {
             ...response.data,
           }));
         } catch (err) {
-          console.error('Error fetching user data:', err);
+          if (err.response?.status === 404) {
+            // Backend endpoint not found, show a warning but continue
+            console.warn('User profile API endpoint not found. Using Firebase data only.');
+          } else {
+            console.error('Error fetching user data:', err);
+          }
         }
       }
       setLoading(false);
@@ -126,6 +131,7 @@ export default function DashboardPage() {
       
       console.log('Update response:', response.data); // Debug log
       alert('Profile updated successfully!');
+      router.push('/'); // Redirect to home page after save
     } catch (err) {
       console.error('Error updating profile:', err.response?.data || err.message);
       if (err.response?.status === 404) {

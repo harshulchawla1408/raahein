@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -17,6 +17,8 @@ import {
   FaMountain,
   FaSpinner,
 } from "react-icons/fa";
+import { getAuth } from "firebase/auth";
+import { app } from "../../firebase/config"; // <-- FIXED: use named export
 
 // Components
 const StepIndicator = ({ currentStep, totalSteps }) => {
@@ -372,6 +374,21 @@ export default function PlanWithAI() {
   const [error, setError] = useState(null);
   const [showCelebration, setShowCelebration] = useState(false);
 
+  // Add this state to ensure floating elements only render on client
+  const [hasMounted, setHasMounted] = useState(false);
+  const [floatingPositions, setFloatingPositions] = useState([]);
+
+  // Only generate random positions on client to avoid hydration mismatch
+  useEffect(() => {
+    setHasMounted(true);
+    // Generate random positions for floating elements
+    const positions = [...Array(8)].map(() => ({
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+    }));
+    setFloatingPositions(positions);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -390,23 +407,61 @@ export default function PlanWithAI() {
     setError(null);
 
     try {
-      const response = await axios.post("/api/v1/ai/suggest-destinations", {
-        age: formData.age,
-        groupType: formData.groupType,
-        interests: formData.interests,
-        budget: formData.budget,
-        duration: `${formData.duration} days`, 
-        season: formData.season,
-        locationPreference: formData.locationPreference,
+      // Get Firebase token for auth
+      const auth = getAuth(app);
+      const user = auth.currentUser;
+      let token = "";
+      if (user) {
+        token = await user.getIdToken();
+      }
+
+      // Use full backend URL for dev, or relative for production
+      const API_BASE =
+        process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+      const endpoint = `${API_BASE}/api/v1/ai/suggest-destinations`;
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          age: formData.age,
+          groupType: formData.groupType,
+          interests: formData.interests,
+          budget: formData.budget,
+          duration: `${formData.duration} days`,
+          season: formData.season,
+          locationPreference: formData.locationPreference,
+        }),
       });
 
-      setSuggestions(response.data);
-      setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 3000);
+      // Defensive: check for HTML error page
+      const contentType = response.headers.get("content-type");
+      if (!response.ok) {
+        let errMsg = "Failed to get travel suggestions";
+        if (contentType && contentType.includes("application/json")) {
+          const errData = await response.json();
+          errMsg = errData.error || errMsg;
+        } else {
+          errMsg = `Server error: ${response.status}`;
+        }
+        throw new Error(errMsg);
+      }
+
+      if (contentType && contentType.includes("application/json")) {
+        const suggestions = await response.json();
+        setSuggestions(suggestions);
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 3000);
+      } else {
+        throw new Error("Unexpected server response (not JSON)");
+      }
     } catch (err) {
       console.error("Error fetching suggestions:", err);
       setError(
-        err.response?.data?.message ||
+        err.message ||
           "Failed to get travel suggestions. Please try again."
       );
     } finally {
@@ -483,36 +538,37 @@ export default function PlanWithAI() {
         </div>
 
         {/* Floating elements */}
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 10, -10, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 5 + i,
-              repeat: Infinity,
-              delay: i * 0.5,
-            }}
-          >
-            <div
-              className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                i % 2 === 0 ? "bg-teal-200/20" : "bg-cyan-200/20"
-              }`}
+        {hasMounted &&
+          floatingPositions.map((pos, i) => (
+            <motion.div
+              key={i}
+              className="absolute"
+              style={{
+                top: pos.top,
+                left: pos.left,
+              }}
+              animate={{
+                y: [0, -20, 0],
+                rotate: [0, 10, -10, 0],
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 5 + i,
+                repeat: Infinity,
+                delay: i * 0.5,
+              }}
             >
-              <span className="text-2xl">
-                {["🌊", "🏖", "🌴", "🌅", "🐚", "🌺", "🦀", "🌞"][i]}
-              </span>
-            </div>
-          </motion.div>
-        ))}
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  i % 2 === 0 ? "bg-teal-200/20" : "bg-cyan-200/20"
+                }`}
+              >
+                <span className="text-2xl">
+                  {["🌊", "🏖", "🌴", "🌅", "🐚", "🌺", "🦀", "🌞"][i]}
+                </span>
+              </div>
+            </motion.div>
+          ))}
       </div>
 
       {/* Hero Section */}
@@ -782,9 +838,9 @@ export default function PlanWithAI() {
               Your Perfect Destinations
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {suggestions.map((suggestion) => (
+              {suggestions.map((suggestion, idx) => (
                 <SuggestionCard
-                  key={suggestion.id || suggestion.destination}
+                  key={suggestion.id || suggestion.name || idx}
                   suggestion={suggestion}
                 />
               ))}
