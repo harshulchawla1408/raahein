@@ -1,8 +1,17 @@
+'use client';
+
 import React from "react";
 import { motion } from "framer-motion";
 import { MapPinIcon, StarIcon, HeartIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 export default function DestinationCard({ destination }) {
+  const router = useRouter();
+
+  const handleViewDetails = () => {
+    router.push(`/destination/${destination._id}`);
+  };
+
   return (
     <motion.div 
       className="group relative bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col"
@@ -58,7 +67,10 @@ export default function DestinationCard({ destination }) {
                 <span className="text-sm font-normal text-gray-500"> /person</span>
               </p>
             </div>
-            <button className="px-4 py-2 bg-[#1A6FA3] text-white rounded-lg text-sm font-medium hover:bg-[#15567D] transition-colors">
+            <button 
+              onClick={handleViewDetails}
+              className="px-4 py-2 bg-[#1A6FA3] text-white rounded-lg text-sm font-medium hover:bg-[#15567D] transition-colors"
+            >
               View Details
             </button>
           </div>

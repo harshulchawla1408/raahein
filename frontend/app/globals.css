@@ -404,3 +404,19 @@ input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.1);
   box-shadow: 0 0 20px rgba(var(--color-primary), 0.5);
 }
+
+.logo-text {
+  font-family: 'Birthstone', cursive;
+  font-size: 4rem;
+  color: #008080;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  transition: color 0.2s;
+}
+@media (max-width: 640px) {
+  .logo-text {
+    font-size: 2rem;
+  }
+}

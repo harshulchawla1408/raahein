@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { auth } from '../firebase/config';
+import Image from 'next/image';
 
 export default function Navbar({ scrollToSection }) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -56,26 +57,45 @@ export default function Navbar({ scrollToSection }) {
     </button>
   );
 
+  // Animation variants for sticky background
+  const bgVariants = {
+    top: {
+      backgroundColor: 'rgba(255,255,255,0)',
+      boxShadow: '0 0 0 0 rgba(0,0,0,0)',
+      backdropFilter: 'blur(0px)',
+      transition: { duration: 0.4, ease: 'easeInOut' },
+    },
+    sticky: {
+      backgroundColor: 'rgba(255,255,255,0.7)',
+      boxShadow: '0 4px 24px 0 rgba(0,0,0,0.07)',
+      backdropFilter: 'blur(8px)',
+      transition: { duration: 0.4, ease: 'easeInOut' },
+    },
+  };
+
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white/90 backdrop-blur-md shadow-md' : 'bg-transparent'
-    }`}>
-      <nav className="container mx-auto px-6 py-4">
+    <motion.header
+      initial="top"
+      animate={isScrolled ? 'sticky' : 'top'}
+      variants={bgVariants}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300`}
+      style={{ willChange: 'background, box-shadow, backdrop-filter' }}
+    >
+      <nav className="container mx-auto px-6 py-5">
         <div className="flex items-center justify-between">
-          
-          {/* Updated Logo */}
-          <div className="text-3xl font-extrabold text-indigo-600 tracking-wide italic cursor-pointer select-none">
-            Raahein<span className="text-sm font-light text-gray-600 ml-1">— your travel guide</span>
+          {/* Logo Text */}
+          <div className="flex items-center   cursor-pointer select-none">
+            <span className="logo-text ">Raahein</span>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <button onClick={() => scrollToSection('about')} className="nav-link">About Us</button>
-            <button onClick={() => scrollToSection('contact')} className="nav-link">Get in Touch</button>
+            <button onClick={() => scrollToSection('about')} className="nav-link drop-shadow-sm">About Us</button>
+            <button onClick={() => scrollToSection('contact')} className="nav-link drop-shadow-sm">Get in Touch</button>
             {!user ? (
               <>
-                <Link href="/login" className="btn-secondary">Login</Link>
-                <Link href="/register" className="btn-secondary">Signup</Link>
+                <Link href="/login" className="btn-secondary drop-shadow-sm">Login</Link>
+                <Link href="/register" className="btn-secondary drop-shadow-sm">Signup</Link>
               </>
             ) : (
               <Avatar />
@@ -102,12 +122,12 @@ export default function Navbar({ scrollToSection }) {
               className="md:hidden mt-4"
             >
               <div className="flex flex-col space-y-4">
-                <button onClick={() => { scrollToSection('about'); setIsMobileMenuOpen(false); }} className="nav-link text-left">About Us</button>
-                <button onClick={() => { scrollToSection('contact'); setIsMobileMenuOpen(false); }} className="nav-link text-left">Get in Touch</button>
+                <button onClick={() => { scrollToSection('about'); setIsMobileMenuOpen(false); }} className="nav-link text-left drop-shadow-sm">About Us</button>
+                <button onClick={() => { scrollToSection('contact'); setIsMobileMenuOpen(false); }} className="nav-link text-left drop-shadow-sm">Get in Touch</button>
                 {!user ? (
                   <>
-                    <Link href="/login" className="btn-secondary w-full text-center">Login</Link>
-                    <Link href="/register" className="btn-secondary w-full text-center">Signup</Link>
+                    <Link href="/login" className="btn-secondary w-full text-center drop-shadow-sm">Login</Link>
+                    <Link href="/register" className="btn-secondary w-full text-center drop-shadow-sm">Signup</Link>
                   </>
                 ) : (
                   <div className="flex justify-end">
@@ -119,6 +139,6 @@ export default function Navbar({ scrollToSection }) {
           )}
         </AnimatePresence>
       </nav>
-    </header>
+    </motion.header>
   );
 }

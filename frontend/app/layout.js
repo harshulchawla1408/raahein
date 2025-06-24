@@ -20,6 +20,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Birthstone&display=swap" rel="stylesheet" />
+      </head>
       <body className="antialiased">
         {children}
       </body>
