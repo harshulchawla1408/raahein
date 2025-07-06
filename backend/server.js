@@ -19,6 +19,8 @@ import userRoutes from './routes/userRoutes.js';
 import destinationRoutes from './routes/destinationRoutes.js';
 import userProfileRoutes from './routes/userProfileRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import hotelRoutes from "./routes/hotelRoutes.js";
+import restaurantRoutes from "./routes/restaurantRoutes.js";
 
 dotenv.config();
 
@@ -75,6 +77,8 @@ app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/destinations', destinationRoutes);
 app.use('/api/v1/user-profile', userProfileRoutes);
 app.use('/api/v1/ai', aiRoutes);
+app.use("/api/v1/hotels", hotelRoutes);
+app.use("/api/v1/restaurants", restaurantRoutes);
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/build')));
