@@ -12,6 +12,7 @@ import HotelCard from '../../../components/HotelCard';
 import RestaurantCard from '../../../components/RestaurantCard';
 import DestinationSkeleton from '../../../components/DestinationSkeleton';
 import ErrorState from '../../../components/ErrorState';
+import MapSection from '../../../components/MapSection';
 
 // Import API utilities
 import { fetchDestination, fetchHotelsByDestination, fetchRestaurantsByDestination } from '../../../lib/api';
@@ -129,25 +130,23 @@ const Sidebar = ({ destination }) => (
 
     <motion.div variants={itemVariants} className="bg-white p-4 rounded-2xl shadow-lg border border-gray-100">
       <h3 className="font-bold text-gray-800 mb-3 text-lg px-2">Location on Map</h3>
-      <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden relative group">
-        <Image src="/images/world-map.png" alt="Map" fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <MapPinIcon className="w-12 h-12 text-white drop-shadow-lg transform transition-transform duration-500 group-hover:scale-110" />
-        </div>
-      </div>
+      <MapSection lat={destination.coordinates?.lat} lng={destination.coordinates?.lng} name={destination.name} />
     </motion.div>
   </div>
 );
 
 const HotelSection = ({ hotels }) => {
   if (!hotels || hotels.length === 0) return null;
-
+  const router = useRouter();
   return (
     <motion.section variants={itemVariants} className="mt-20">
       <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-12">Where to Stay</h2>
       <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {hotels.map(hotel => <HotelCard key={hotel._id} hotel={hotel} />)}
+        {hotels.map(hotel => (
+          <div key={hotel._id} onClick={() => router.push(`/hotel/${hotel._id}`)} className="cursor-pointer">
+            <HotelCard hotel={hotel} />
+          </div>
+        ))}
       </motion.div>
     </motion.section>
   );
@@ -155,12 +154,16 @@ const HotelSection = ({ hotels }) => {
 
 const RestaurantSection = ({ restaurants }) => {
   if (!restaurants || restaurants.length === 0) return null;
-
+  const router = useRouter();
   return (
     <motion.section variants={itemVariants} className="mt-20">
       <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-12">Where to Eat</h2>
       <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {restaurants.map(restaurant => <RestaurantCard key={restaurant._id} restaurant={restaurant} />)}
+        {restaurants.map(restaurant => (
+          <div key={restaurant._id} onClick={() => router.push(`/restaurant/${restaurant._id}`)} className="cursor-pointer">
+            <RestaurantCard restaurant={restaurant} />
+          </div>
+        ))}
       </motion.div>
     </motion.section>
   );

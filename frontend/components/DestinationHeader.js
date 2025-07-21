@@ -11,11 +11,18 @@ const DestinationHeader = ({ destination }) => {
     show: { y: 0, opacity: 1, transition: { duration: 0.5 } },
   };
 
+  // Helper to ensure image path is correct
+  const getImageSrc = (img) => {
+    if (!img) return '/images/noimage.jpg';
+    if (img.startsWith('http') || img.startsWith('/')) return img;
+    return `/images/${img}`;
+  };
+
   return (
     <header className="relative text-center mb-12 py-24 rounded-3xl overflow-hidden border-4 border-white shadow-2xl">
       <div className="absolute inset-0">
         <Image 
-          src={destination.images?.[0] || destination.image || '/images/noimage.jpg'} 
+          src={getImageSrc(destination.images?.[0] || destination.image)} 
           alt={destination.name} 
           fill 
           className="object-cover blur-lg scale-125"

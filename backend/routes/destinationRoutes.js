@@ -13,19 +13,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET destination by ID
-router.get("/:id", async (req, res) => {
-  try {
-    const destination = await Destination.findById(req.params.id);
-    if (!destination) {
-      return res.status(404).json({ error: "Destination not found" });
-    }
-    res.json(destination);
-  } catch (err) {
-    res.status(500).json({ error: "Server Error" });
-  }
-});
-
 // GET destinations by filters
 router.get("/filter", async (req, res) => {
   try {
@@ -95,6 +82,19 @@ router.get("/filter", async (req, res) => {
   } catch (err) {
     console.error("Filtering error:", err);
     res.status(400).json({ error: "Error filtering destinations" });
+  }
+});
+
+// GET destination by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const destination = await Destination.findById(req.params.id);
+    if (!destination) {
+      return res.status(404).json({ error: "Destination not found" });
+    }
+    res.json(destination);
+  } catch (err) {
+    res.status(500).json({ error: "Server Error" });
   }
 });
 

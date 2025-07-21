@@ -63,7 +63,7 @@ export default function DestinationCard({ destination }) {
             <div>
               <span className="text-sm text-gray-500">Starting from</span>
               <p className="text-xl font-bold text-[#FF7A3D]">
-                ₹{destination.budget?.split('-')[0]?.replace('₹', '') || '5,000'}
+                ₹{destination.budget?.split('-')[0]?.replace('₹', '') || '5k'}
                 <span className="text-sm font-normal text-gray-500"> /person</span>
               </p>
             </div>

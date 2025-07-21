@@ -45,4 +45,26 @@ export const fetchAllDestinations = async () => {
     console.error('Error fetching destinations:', error);
     throw new Error('Failed to fetch destinations');
   }
+};
+
+// Fetch hotel by ID
+export const fetchHotel = async (hotelId) => {
+  try {
+    const response = await axios.get(`/api/v1/hotels/${hotelId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching hotel:', error);
+    throw new Error('Failed to fetch hotel');
+  }
+};
+
+// Fetch restaurant by ID
+export const fetchRestaurant = async (restaurantId) => {
+  try {
+    const response = await axios.get(`/api/v1/restaurants/${restaurantId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching restaurant:', error);
+    throw new Error('Failed to fetch restaurant');
+  }
 }; 

@@ -19,8 +19,8 @@ const destinationSchema = new mongoose.Schema({
     lat: { type: Number },
     lng: { type: Number }
   },
-  hotels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Hotel" }],
-  restaurants: [{ type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" }],
+  hotels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Hotels" }],
+  restaurants: [{ type: mongoose.Schema.Types.ObjectId, ref: "Restaurants" }],
   createdAt: { type: Date, default: Date.now }
 });
 const Destinations = mongoose.model('Destinations', destinationSchema);
